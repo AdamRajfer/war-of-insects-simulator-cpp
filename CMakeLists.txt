@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 2.8)
+cmake_policy(SET CMP0037 NEW)
+find_library(GRAPHICS sfml-graphics)
+find_library(WINDOW sfml-window)
+find_library(SYSTEM sfml-system)
+include_directories(${CMAKE_SOURCE_DIR}/include)
+file(GLOB SRC main.cpp src/*.cpp)
+add_executable(war_of_insects_simulator ${SRC})
+target_link_libraries(war_of_insects_simulator ${GRAPHICS} ${WINDOW} ${SYSTEM})
+
