@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>war-of-insects-cpp</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__left">
+    <div class="stackedit__toc">
+      
+<ul>
+<li><a href="#symulator-wojny-insektów">Symulator wojny insektów</a>
+<ul>
+<li><a href="#cel-projektu">Cel projektu</a></li>
+<li><a href="#opis-programu">Opis programu</a></li>
+<li><a href="#implementacja">Implementacja</a></li>
+<li><a href="#instalacja-zależności">Instalacja zależności</a></li>
+<li><a href="#budowa-symulatora">Budowa symulatora</a></li>
+<li><a href="#uruchomienie-symulatora">Uruchomienie symulatora</a></li>
+</ul>
+</li>
+</ul>
+
+    </div>
+  </div>
+  <div class="stackedit__right">
+    <div class="stackedit__html">
+      <h1 id="symulator-wojny-insektów">Symulator wojny insektów</h1>
+<p>Adam Rajfer (<a href="mailto:adam.rajfer@gmail.com">adam.rajfer@gmail.com</a>), 2017</p>
+<h2 id="cel-projektu">Cel projektu</h2>
+<p>Celem projektu było wykonanie w języku C++ programu służącego do przeprowadzenia symulacji wojny czterech gatunków owadów:</p>
+<ul>
+<li><strong>mrówek</strong>,</li>
+<li><strong>os</strong>,</li>
+<li><strong>pływaków</strong>,</li>
+<li><strong>przekrasek</strong>.</li>
+</ul>
+<h2 id="opis-programu">Opis programu</h2>
+<p>Mrówki atakują osy, osy atakują pływaki, pływaki atakują przekraski, a przekraski atakują mrówki. Powstaje w ten sposób zamknięty łańcuch pokarmowy. Symulacja dobiega końca w dwóch przypadkach:</p>
+<ul>
+<li>w środowisku pozostały jedynie insekty jednego gatunku,</li>
+<li>w środowisku pozostały jedynie insekty dwóch, nie będących ze sobą w konflikcie gatunków.</li>
+</ul>
+<p>Każdy insekt charakteryzuje się również rolą społeczną:</p>
+<ul>
+<li><strong>żołnierze</strong> mają za zadanie zabić insekta wrogiej kolonii,</li>
+<li><strong>pracownicy</strong> mają za zadanie uzdrowić poszkodowanego (żywego) insekta rodzimej kolonii,</li>
+<li><strong>trutnie</strong> mają za zadanie zapłodnić królową oraz zregenerować się,</li>
+<li><strong>królowe</strong> mają za zadanie urodzić nowego żołnierza po uprzednim zapłodnieniu przez trutnie.</li>
+</ul>
+<h2 id="implementacja">Implementacja</h2>
+<h3 id="simulation_panel"><code>simulation_panel</code></h3>
+<p>Klasa ta stanowi graficzną reprezentację symulacji. Odbywa się w niej, w kolejnych powtórzeniach pętli <em>while</em>, funkcja, odpowiadająca za kolejne kroki symulacji. Mrówki oznaczone są w oknie jako punkty w kolorze czerwonym, osy—niebieskim, pływaki—białym, a przekraski—zielonym. Ich pozycje aktualizowane są w kolejnych powtórzeniach pętli. Wyświetlana jest również liczność owadów każdego gatunku. W celu przeprowadzenia wizualizacji skorzystano z biblioteki SFML.</p>
+<h3 id="simulation"><code>simulation</code></h3>
+<p>Klasa ta odpowiada za przebieg jednej tury symulacji. Wykonywane są w niej kolejno po sobie funkcja szukania celu oraz działania insekta.</p>
+<h3 id="environment"><code>environment</code></h3>
+<p>Klasa ta odpowiada za wszystkie czynności, jakie wykonywać może insekt. Charakteryzuje środowisko, w którym tworzone są kolejne kolonie insektów. Zawiera mapę wskaźników do obiektów klasy <code>colony</code>.</p>
+<h3 id="colony"><code>colony</code></h3>
+<p>Klasa ta charakteryzuje kolonię, w której tworzone są kolejne grupy insektów. Posiada wskaźnik do obiektu wrogiej kolonii. Zawiera mapę wskaźników do obiektów klasy <code>group</code>.</p>
+<h3 id="group"><code>group</code></h3>
+<p>Klasa ta charakteryzuje grupę insektów o pewnej charakterystycznej roli (np. grupa trutni). Zawiera wektor wskaźników do obiektów klasy <code>insect</code>.</p>
+<h3 id="insect"><code>insect</code></h3>
+<p>Ta abstrakcyjna klasa charakteryzuje insekta, zamieszkującego pewną grupę w pewnej kolonii w danym środowisku. Posiada wskaźniki do swojej grupy, ale również do kolonii, która będzie w przyszłości kolonią docelową insekta. Zawiera również takie pola, jak punkty zdrowia, pozycja na mapie, promień ataku oraz promień ustawienia w szyku. Definiuje metody wirtualne:</p>
+<ul>
+<li><code>moveTheInsect</code> (ruch insekta),</li>
+<li><code>actTheInsect</code> (działanie insekta),</li>
+<li><code>addGroupsToAct</code> (dodanie nazw grup docelowych insekta),</li>
+<li><code>setVirtualTargetColony</code> (ustawienie kolonii docelowej insekta).</li>
+</ul>
+<p>Po klasie <code>insect</code> dziedziczą klasy abstrakcyjne: <code>ant_insect</code>, <code>wasp_insect</code>, <code>dytiscidae_insect</code> oraz <code>thanasimus_insect</code>. Implementują one metodę wirtualną <code>moveTheInsect</code>. Każdy gatunek porusza się w charakterystyczny dla siebie sposób:</p>
+<ul>
+<li>mrówki poruszają się w wymiarze 2 x 2 pikseli,</li>
+<li>osy poruszają się w wymiarze 1 x 3 pikseli,</li>
+<li>pływaki poruszają się tak, że jeśli znajdują się na współrzędnej startowej y, skaczą na wysokość wroga, a następnie wykonują skok na współrzędną startową y. W osi x poruszają się o 1 piksel,</li>
+<li>przekraski poruszają się w wymiarze 3 x 1 pikseli.</li>
+</ul>
+<p>Po klasie <code>insect</code> dziedziczą również klasy abstrakcyjne: <code>queen_insect</code>, <code>drone_insect</code>, <code>soldier_insect</code> oraz <code>worker_insect</code>. Implementują one metody wirtualne:</p>
+<ul>
+<li><code>actTheInsect</code>,</li>
+<li><code>addGroupsToAct</code>,</li>
+<li><code>setVirtualTargetColony</code>.</li>
+</ul>
+<h2 id="instalacja-zależności">Instalacja zależności</h2>
+<pre><code>sudo apt install cmake
+sudo apt install libsfml-dev
+</code></pre>
+<h2 id="budowa-symulatora">Budowa symulatora</h2>
+<p><code>bash build_simulation.sh</code></p>
+<h2 id="uruchomienie-symulatora">Uruchomienie symulatora</h2>
+<p><code>bash run_simulation.sh</code></p>
+
+    </div>
+  </div>
+</body>
+
+</html>
